@@ -15,7 +15,7 @@ var PORT = 4000
 const serverUrl = process.env.REACT_APP_SERVER_URL
 
 
-app.post('/test', async function ({ body }, res, next) {
+app.post('/fieldData', async function ({ body }, res, next) {
   console.log("serverUrl :", serverUrl);
 
   try {
