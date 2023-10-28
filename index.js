@@ -19,14 +19,22 @@ app.post('/fieldData', async function ({ body }, res, next) {
   console.log("serverUrl :", serverUrl);
 
   try {
-    // console.log("bd", body);
+    var mainURL = `${serverUrl}call-api` // url connects with lambda api
+    const d = new Date();
+    let year = d.getFullYear();
+
+    var url = `https://sandboxapi.deere.com/platform/organizations/${body.orgid}/farms/${body.jdfarmid}/fields`     // url to get the fields
+    var workPlanURL = `https://sandboxapi.deere.com/platform/organizations/${body.orgid}/workPlans?year=${year}` // url to get workplans for last year
+
+    body["url"] = url
 
     // Example of an Axios POST request
-    const axiosResponse = await axios.post(body.mainURL, body); // Replace the URL with your desired endpoint
+    const axiosResponse = await axios.post(mainURL, body); // Replace the URL with your desired endpoint
     // console.log("Axios Response:", axiosResponse.data);
 
     var jsonData = axiosResponse.data.values;
     var fieldData = axiosResponse.data.values;
+
 
     // Initialize an array to store the "boundaries" links
     const boundariesLinks = [];
@@ -75,14 +83,8 @@ app.post('/fieldData', async function ({ body }, res, next) {
       .then(() => {
         console.log("All fetches completed");
         console.log("boundariesCombined", boundariesCombined);
-        var filterBoundaries = boundariesCombined.filter((value) => value.active == true);
-
-
-        // res.status(200).json(boundariesCombined); // Send the response data back to the client
-        var workplanPayload = {
-
-        }
-        body["url"] = body["workPlanURL"]
+   
+        body["url"] = workPlanURL
         // Example of another Axios POST request after Promise.all resolves
         return axios.post(`${serverUrl}call-api`, body);
       })
@@ -92,7 +94,7 @@ app.post('/fieldData', async function ({ body }, res, next) {
 
         var workplanData = anotherResponse.data.values
         console.log("workplanData...", workplanData);
-
+// filtering the workplan of seeding only 
         var workplan = workplanData.filter(function (item) {
           return item.workType.instanceDomainId === "dtiSeeding";
         });
